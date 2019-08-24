@@ -1,3 +1,88 @@
+const keyList = {
+    id: {
+        alias: ['hotel_id'],
+        type: 'string'
+    },
+    destination_id: {
+        alias: ['DestinationId', 'destination'],
+        type: 'number'
+    },
+    name: {
+        alias: ['hotel_name'],
+        type: 'string'
+    },
+    description: {
+        alias: ['details', 'info'],
+        type: 'string',
+        merge_method: 'longer_replace_shorter'
+    },
+    booking_conditions: {
+        type: 'array',
+        merge_method: 'append_different_item'
+    },
+    lat: {
+        alias: ['Latitude'],
+        type: 'number',
+        parent: 'location',
+    },
+    lng: {
+        alias: ['Longitude'],
+        type: 'number',
+        parent: 'location',
+    },
+    city: {
+        type: 'string',
+        parent: 'location',
+    },
+    country: {
+        type: 'string',
+        parent: 'location',
+        create_method: 'replace_code_with_name'
+    },
+    address: {
+        type: 'string',
+        parent: 'location'
+    },
+    postalcode: {
+        alias: ['PostalCode'],
+        type: 'string'
+    },
+    rooms: {
+        type: 'array',
+        parent: 'images',
+        create_method: 'image_link_formating',
+        merge_method: 'append_different_link'
+    },
+    site: {
+        type: 'array',
+        parent: 'images',
+        create_method: 'image_link_formating',
+        merge_method: 'append_different_link'
+    },
+    amenities: {
+        type: 'array',
+        subtype: 'object',
+        parent: 'images',
+        create_method: 'image_link_formating',
+        merge_method: 'append_different_link'
+    },
+    general: {
+        type: 'array',
+        parent: 'amenities',
+        alias: ['Facilities'],
+        create_method: 'lower_case_all',
+        merge_method: 'append_different_item'
+    },
+    room: {
+        type: 'array',
+        subtype: 'string',
+        parent: 'amenities',
+        alias: ['amenities'],
+        create_method: 'lower_case_all',
+        merge_method: 'append_different_item'
+    }
+};
+
 const countryList = {
 
     "BD":"Bangladesh",
@@ -250,18 +335,15 @@ const countryList = {
     "UA":"Ukraine",
     "QA":"Qatar",
     "MZ":"Mozambique"
-}
+};
 
 const aliasList = {
-    id: ['hotel_id'],
-    destination_id: ['DestinationId', 'destination'],
-    name: ['hotel_name'],
-    description: ['details', 'info'],
-    lat: ['Latitude'],
-    lng: ['Longitude'],
-    postalcode: ['PostalCode']
-}
+    businesscenter: "business center",
+    drycleaning: "dry cleaning"
+};
+
 module.exports = {
+    keyList,
     countryList,
     aliasList
 };
