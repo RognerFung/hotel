@@ -41,7 +41,7 @@ module.exports = "<app-home></app-home>"
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container mt-5\">\n    <div class=\"row\">\n        <textarea id=\"textarea\" name=\"source\" cols=\"150\" rows=\"20\" placeholder=\"Paste json format source data here and click Clean button to get clean data\" [(ngModel)]=\"source\"></textarea>\n    </div>\n    <div class=\"row my-2\">\n        <button id=\"clean\" class=\"btn btn-primary\" (click)=\"onClean()\">Clean</button>\n        <button id=\"reset\" class=\"btn btn-danger ml-2\" (click)=\"onReset()\">Reset</button>\n    </div>\n</div>"
+module.exports = "<div class=\"container mt-5\">\n    <div class=\"row\">\n        <button class=\"btn btn-secondary\" (click)=\"onLoad('A')\">Source A</button>\n        <button class=\"btn btn-secondary mx-2\" (click)=\"onLoad('B')\">Source B</button>\n        <button class=\"btn btn-secondary\" (click)=\"onLoad('C')\">Source C</button>\n        <div *ngIf=\"loader\" class=\"spinner-border ml-5\" role=\"status\">\n            <span class=\"sr-only\">Loading...</span>\n        </div>\n        <div *ngIf=\"cleanData\" class=\"input-group my-2\">\n            <input type=\"text\" class=\"form-control\" [(ngModel)]=\"inputData\" placeholder=\"Input hotel id or destination id to find hotel\" (ngModelChange)=\"onChange()\">\n            <div class=\"input-group-append\">\n              <button class=\"btn btn-outline-secondary\" type=\"button\" (click)=\"onSearch()\">Search</button>\n            </div>\n        </div>\n    </div>\n    <div class=\"row my-2\">\n        <textarea id=\"textarea\" name=\"source\" cols=\"150\" rows=\"18\" placeholder=\"Click source button to load data. Or paste json format data here. Then click Clean button to get clean data\" [(ngModel)]=\"source\"></textarea>\n    </div>\n    <div class=\"row my-2\">\n        <button id=\"clean\" class=\"btn btn-primary\" (click)=\"onClean()\">Clean</button>\n        <button id=\"reset\" class=\"btn btn-danger ml-2\" (click)=\"onReset()\">Reset</button>\n        <label class=\"ml-5 text-info\">{{label}}</label>\n    </div>\n</div>"
 
 /***/ }),
 
@@ -164,8 +164,9 @@ var FeedService = /** @class */ (function () {
     function FeedService(http) {
         this.http = http;
     }
-    FeedService.prototype.getFromApi = function () {
-        return this.http.get('http://127.0.0.1:3000/api');
+    FeedService.prototype.getFromApi = function (url) {
+        console.log(url);
+        return this.http.get(url);
     };
     FeedService.prototype.postToApi = function (data) {
         return this.http.post('http://127.0.0.1:3000/api', { data: data });
@@ -219,17 +220,61 @@ var HomeComponent = /** @class */ (function () {
     function HomeComponent(feedService, jsonPipe) {
         this.feedService = feedService;
         this.jsonPipe = jsonPipe;
+        this.rawData = [];
+        this.sourceA = 'https://api.myjson.com/bins/gdmqa';
+        this.sourceB = 'https://api.myjson.com/bins/1fva3m';
+        this.sourceC = 'https://api.myjson.com/bins/j6kzm';
     }
+    HomeComponent.prototype.onLoad = function (char) {
+        var _this = this;
+        this.loader = true;
+        this.feedService.getFromApi(this["source" + char]).subscribe(function (data) {
+            if (data) {
+                _this.rawData = _this.rawData.concat(data);
+                _this.source = _this.jsonPipe.transform(_this.rawData);
+                _this.loader = false;
+                if (_this.label) {
+                    _this.label += ", Source " + char;
+                }
+                else {
+                    _this.label = "Following source data merged: Source " + char;
+                }
+            }
+        });
+    };
     HomeComponent.prototype.onReset = function () {
         this.source = undefined;
+        this.rawData = [];
+        this.label = undefined;
     };
     HomeComponent.prototype.onClean = function () {
         var _this = this;
         this.feedService.postToApi(JSON.parse(this.source)).subscribe(function (data) {
             if (data) {
+                _this.cleanData = data;
                 _this.source = _this.jsonPipe.transform(data);
+                _this.label = 'Data is cleaned';
             }
         });
+    };
+    HomeComponent.prototype.onChange = function () {
+        var _this = this;
+        if (this.inputData) {
+            var changedData = this.cleanData.filter(function (e) { return e.id.toLowerCase().includes(_this.inputData.toLowerCase()) || e.destination_id.toString().includes(_this.inputData); });
+            this.source = this.jsonPipe.transform(changedData);
+        }
+        else {
+            this.source = this.jsonPipe.transform(this.cleanData);
+        }
+    };
+    HomeComponent.prototype.onSearch = function () {
+        var _this = this;
+        if (this.inputData) {
+            var changedData = this.cleanData.filter(function (e) { return e.id.toLowerCase().includes(_this.inputData.toLowerCase()) || e.destination_id.toString().includes(_this.inputData); });
+            this.label = "You have found " + changedData.length + " record" + (changedData.length === 1 ? '' : 's') + ". Hotel name" + (changedData.length === 1 ? ' is' : 's are') + " ";
+            changedData.forEach(function (e) { return _this.label += e.name + ", "; });
+            this.label = this.label.slice(0, -2);
+        }
     };
     HomeComponent.ctorParameters = function () { return [
         { type: src_app_feed_service__WEBPACK_IMPORTED_MODULE_2__["FeedService"] },
@@ -312,7 +357,7 @@ Object(_angular_platform_browser_dynamic__WEBPACK_IMPORTED_MODULE_1__["platformB
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/fangxiaoyong/Documents/DEMO/flickrUI-master/src/main.ts */"./src/main.ts");
+module.exports = __webpack_require__(/*! /Users/fangxiaoyong/Documents/DEMO/hotel-ui/src/main.ts */"./src/main.ts");
 
 
 /***/ })

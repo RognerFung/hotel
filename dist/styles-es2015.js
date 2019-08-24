@@ -598,8 +598,8 @@ if(false) {}
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /Users/fangxiaoyong/Documents/DEMO/flickrUI-master/node_modules/bootstrap/dist/css/bootstrap.min.css */"./node_modules/bootstrap/dist/css/bootstrap.min.css");
-module.exports = __webpack_require__(/*! /Users/fangxiaoyong/Documents/DEMO/flickrUI-master/src/styles.css */"./src/styles.css");
+__webpack_require__(/*! /Users/fangxiaoyong/Documents/DEMO/hotel-ui/node_modules/bootstrap/dist/css/bootstrap.min.css */"./node_modules/bootstrap/dist/css/bootstrap.min.css");
+module.exports = __webpack_require__(/*! /Users/fangxiaoyong/Documents/DEMO/hotel-ui/src/styles.css */"./src/styles.css");
 
 
 /***/ })

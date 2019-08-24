@@ -41,7 +41,7 @@ module.exports = "<app-home></app-home>"
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container mt-5\">\n    <div class=\"row\">\n        <textarea id=\"textarea\" name=\"source\" cols=\"150\" rows=\"20\" placeholder=\"Paste json format source data here and click Clean button to get clean data\" [(ngModel)]=\"source\"></textarea>\n    </div>\n    <div class=\"row my-2\">\n        <button id=\"clean\" class=\"btn btn-primary\" (click)=\"onClean()\">Clean</button>\n        <button id=\"reset\" class=\"btn btn-danger ml-2\" (click)=\"onReset()\">Reset</button>\n    </div>\n</div>"
+module.exports = "<div class=\"container mt-5\">\n    <div class=\"row\">\n        <button class=\"btn btn-secondary\" (click)=\"onLoad('A')\">Source A</button>\n        <button class=\"btn btn-secondary mx-2\" (click)=\"onLoad('B')\">Source B</button>\n        <button class=\"btn btn-secondary\" (click)=\"onLoad('C')\">Source C</button>\n        <div *ngIf=\"loader\" class=\"spinner-border ml-5\" role=\"status\">\n            <span class=\"sr-only\">Loading...</span>\n        </div>\n        <div *ngIf=\"cleanData\" class=\"input-group my-2\">\n            <input type=\"text\" class=\"form-control\" [(ngModel)]=\"inputData\" placeholder=\"Input hotel id or destination id to find hotel\" (ngModelChange)=\"onChange()\">\n            <div class=\"input-group-append\">\n              <button class=\"btn btn-outline-secondary\" type=\"button\" (click)=\"onSearch()\">Search</button>\n            </div>\n        </div>\n    </div>\n    <div class=\"row my-2\">\n        <textarea id=\"textarea\" name=\"source\" cols=\"150\" rows=\"18\" placeholder=\"Click source button to load data. Or paste json format data here. Then click Clean button to get clean data\" [(ngModel)]=\"source\"></textarea>\n    </div>\n    <div class=\"row my-2\">\n        <button id=\"clean\" class=\"btn btn-primary\" (click)=\"onClean()\">Clean</button>\n        <button id=\"reset\" class=\"btn btn-danger ml-2\" (click)=\"onReset()\">Reset</button>\n        <label class=\"ml-5 text-info\">{{label}}</label>\n    </div>\n</div>"
 
 /***/ }),
 
@@ -160,8 +160,9 @@ let FeedService = class FeedService {
     constructor(http) {
         this.http = http;
     }
-    getFromApi() {
-        return this.http.get('http://127.0.0.1:3000/api');
+    getFromApi(url) {
+        console.log(url);
+        return this.http.get(url);
     }
     postToApi(data) {
         return this.http.post('http://127.0.0.1:3000/api', { data });
@@ -214,16 +215,57 @@ let HomeComponent = class HomeComponent {
     constructor(feedService, jsonPipe) {
         this.feedService = feedService;
         this.jsonPipe = jsonPipe;
+        this.rawData = [];
+        this.sourceA = 'https://api.myjson.com/bins/gdmqa';
+        this.sourceB = 'https://api.myjson.com/bins/1fva3m';
+        this.sourceC = 'https://api.myjson.com/bins/j6kzm';
+    }
+    onLoad(char) {
+        this.loader = true;
+        this.feedService.getFromApi(this[`source${char}`]).subscribe(data => {
+            if (data) {
+                this.rawData = [...this.rawData, ...data];
+                this.source = this.jsonPipe.transform(this.rawData);
+                this.loader = false;
+                if (this.label) {
+                    this.label += `, Source ${char}`;
+                }
+                else {
+                    this.label = `Following source data merged: Source ${char}`;
+                }
+            }
+        });
     }
     onReset() {
         this.source = undefined;
+        this.rawData = [];
+        this.label = undefined;
     }
     onClean() {
         this.feedService.postToApi(JSON.parse(this.source)).subscribe(data => {
             if (data) {
+                this.cleanData = data;
                 this.source = this.jsonPipe.transform(data);
+                this.label = 'Data is cleaned';
             }
         });
+    }
+    onChange() {
+        if (this.inputData) {
+            const changedData = this.cleanData.filter(e => e.id.toLowerCase().includes(this.inputData.toLowerCase()) || e.destination_id.toString().includes(this.inputData));
+            this.source = this.jsonPipe.transform(changedData);
+        }
+        else {
+            this.source = this.jsonPipe.transform(this.cleanData);
+        }
+    }
+    onSearch() {
+        if (this.inputData) {
+            const changedData = this.cleanData.filter(e => e.id.toLowerCase().includes(this.inputData.toLowerCase()) || e.destination_id.toString().includes(this.inputData));
+            this.label = `You have found ${changedData.length} record${changedData.length === 1 ? '' : 's'}. Hotel name${changedData.length === 1 ? ' is' : 's are'} `;
+            changedData.forEach(e => this.label += `${e.name}, `);
+            this.label = this.label.slice(0, -2);
+        }
     }
 };
 HomeComponent.ctorParameters = () => [
@@ -305,7 +347,7 @@ Object(_angular_platform_browser_dynamic__WEBPACK_IMPORTED_MODULE_1__["platformB
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/fangxiaoyong/Documents/DEMO/flickrUI-master/src/main.ts */"./src/main.ts");
+module.exports = __webpack_require__(/*! /Users/fangxiaoyong/Documents/DEMO/hotel-ui/src/main.ts */"./src/main.ts");
 
 
 /***/ })
