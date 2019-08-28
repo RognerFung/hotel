@@ -169,7 +169,7 @@ var FeedService = /** @class */ (function () {
         return this.http.get(url);
     };
     FeedService.prototype.postToApi = function (data) {
-        return this.http.post('http://127.0.0.1:3000/api', { data: data });
+        return this.http.post('http://ec2-13-250-179-182.ap-southeast-1.compute.amazonaws.com:3000/api', { data: data });
     };
     FeedService.ctorParameters = function () { return [
         { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"] }

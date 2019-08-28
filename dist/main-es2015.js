@@ -165,7 +165,7 @@ let FeedService = class FeedService {
         return this.http.get(url);
     }
     postToApi(data) {
-        return this.http.post('http://127.0.0.1:3000/api', { data });
+        return this.http.post('http://ec2-13-250-179-182.ap-southeast-1.compute.amazonaws.com:3000/api', { data });
     }
 };
 FeedService.ctorParameters = () => [
